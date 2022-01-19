@@ -16,11 +16,14 @@ void read_file(std::string file_name, Dictionary<std::string, int>& dict)
         std::cerr << "File not opened!" << std::endl;
     }
     std::string word;
-    while (file >> word)
+    while (std::getline(file, word))
     {
+        int currentLetter = 0;
+        std::cout << word << std::endl;
         std::string temp = "";
         for (auto w : word)
         {
+            currentLetter++;
             temp += w;
             if ((int)w < 97 && int(w) > 122)
             {
@@ -32,7 +35,7 @@ void read_file(std::string file_name, Dictionary<std::string, int>& dict)
                 dict.insert(word, 1);
                 temp = "";
             }
-            if (w == word[word.length()-1])
+            if (currentLetter == word.length()-1)
             {
                 if (dict.search(word))
                 {

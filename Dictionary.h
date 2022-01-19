@@ -42,16 +42,15 @@ private:
     };
     void rotateLeft(Node*& root);
     void rotateRight(Node*& root);
-    void insertAVL(Node*& root, Node*& newNode, bool& duplicate);
-    void clearTree(Node*& p);
+    void insertRec(Node*& root, Node*& newNode, bool& duplicate);
+    void clear(Node*& p);
     Node* findMinimum (Node*& root);
     Node* findMaximum (Node*& root);
     void balance(Node*& root);
-    void deleteNode(Node*& root, const Key& key);
     int diff(Node* temp);
     std::string recursiveCallback(Node* node);
     int height(Node* temp);
-    void deleteNodeFromTree(Node*& root);
+    void deleteNode(Node*& root);
     int getDiff() { return diff(root_); };
     int getHeight() { return height(root_); };
     void printInOrder(Node* root);
@@ -73,7 +72,7 @@ protected:
 
 template<typename Key, typename Info>
 Dictionary<Key, Info>::~Dictionary() {
-    clearTree(root_);
+    clear(root_);
 }
 
 template<typename Key, typename Info>
@@ -163,7 +162,7 @@ void Dictionary<Key, Info>::rotateRight(Dictionary::Node *&root) {
     }
 }
 template<typename Key, typename Info>
-void Dictionary<Key, Info>::insertAVL(Dictionary::Node *&root, Dictionary::Node *&newNode, bool& duplicate) {
+void Dictionary<Key, Info>::insertRec(Dictionary::Node *&root, Dictionary::Node *&newNode, bool& duplicate) {
     if (root == nullptr)
     {
         root = newNode;
@@ -175,12 +174,12 @@ void Dictionary<Key, Info>::insertAVL(Dictionary::Node *&root, Dictionary::Node 
     }
     else if (root->key_ > newNode->key_)
     {
-        insertAVL(root->left_, newNode, duplicate);
+        insertRec(root->left_, newNode, duplicate);
         balance(root);
     }
     else
     {
-        insertAVL(root->right_, newNode, duplicate);
+        insertRec(root->right_, newNode, duplicate);
         balance(root);
     }
 }
@@ -191,17 +190,17 @@ void Dictionary<Key, Info>::insert(const Key &key, const Info &info) {
     newNode->balance_factor = 0;
     newNode->height_ = 0;
     bool isDuplicate = false;
-    insertAVL(root_, newNode, isDuplicate);
+    insertRec(root_, newNode, isDuplicate);
     if (isDuplicate)
         delete newNode;
 }
 
 template<typename Key, typename Info>
-void Dictionary<Key, Info>::clearTree(Dictionary::Node *&p) {
+void Dictionary<Key, Info>::clear(Dictionary::Node *&p) {
     if (p != nullptr)
     {
-        clearTree(p->getLeft());
-        clearTree(p->getRight());
+        clear(p->getLeft());
+        clear(p->getRight());
         delete p;
         p = nullptr;
     }
@@ -273,30 +272,6 @@ int Dictionary<Key, Info>::diff(Dictionary::Node *temp) {
 }
 
 template<typename Key, typename Info>
-void Dictionary<Key, Info>::deleteNode(Dictionary::Node *&root, const Key& key) {
-    if (root == nullptr)
-        std::cerr << "Cannot delete from empty tree!" << std::endl;
-    else if ( key < root->key_ )
-        deleteNode(root->left_, key);
-    else if ( key > root->key_ )
-        deleteNode(root->right_, key);
-    else if (root->left_ != nullptr && root->right_ != nullptr)
-    {
-        auto* temp = findMinimum(root->right_);
-        root->key_ = temp->key_;
-        root->info_ = temp->info_;
-        deleteNode(root->right_, root->key_);
-    }
-    else {
-        auto* temp = root;
-        if (root->left_ == nullptr) root = root->left_;
-        else if (root->right_ == nullptr) root = root->left_;
-        delete temp;
-    }
-    balance(root);
-}
-
-template<typename Key, typename Info>
 void Dictionary<Key, Info>::balance(Dictionary::Node *&root) {
     if (root->left_ != nullptr)
         root->left_ ->parent_ = root;
@@ -327,7 +302,7 @@ void Dictionary<Key, Info>::balance(Dictionary::Node *&root) {
 }
 
 template<typename Key, typename Info>
-void Dictionary<Key, Info>::deleteNodeFromTree(Node*& root) {
+void Dictionary<Key, Info>::deleteNode(Node*& root) {
     Node* currentElement;
     Node* previousElement;
     Node* to_delete;
@@ -409,17 +384,17 @@ void Dictionary<Key, Info>::remove(const Key &key) {
         {
             if (current == root_)
             {
-                deleteNodeFromTree(root_);
+                deleteNode(root_);
                 balance(root_);
             }
             else if (parentCurrent->key_ > key)
             {
-                deleteNodeFromTree(parentCurrent->left_);
+                deleteNode(parentCurrent->left_);
                 balance(parentCurrent);
             }
             else
             {
-                deleteNodeFromTree(parentCurrent->right_);
+                deleteNode(parentCurrent->right_);
                 balance(parentCurrent);
             }
         }

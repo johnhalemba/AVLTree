@@ -2,6 +2,7 @@
 #include "externalFunctions.h"
 
 int main() {
+    /*
     Dictionary<int, int> d1;
     d1.insert(5, 2);
     d1.insert(1, 2);
@@ -20,7 +21,9 @@ int main() {
     d1.insert(34, 99);
     d1.insert(39, 99);
     d1.printPrittier();
+    */
     Dictionary<std::string, int> dFile;
     read_file("file.txt", dFile);
+    dFile.printPrittier();
     return 0;
 }
