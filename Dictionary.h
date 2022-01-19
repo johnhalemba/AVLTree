@@ -4,10 +4,13 @@
 
 #ifndef TREE_DICTIONARY_H
 #define TREE_DICTIONARY_H
+#include <iostream>
 
 int max(int a, int b) {
     return (a > b) ? a : b;
 }
+
+class Node;
 
 template <typename Key, typename Info>
 class Dictionary {
@@ -16,10 +19,15 @@ private:
     class Node {
         friend class Dictionary;
     public:
-        Node(Key key, Info info) : key_(key), info_(info), balance_factor(0), left_(nullptr), right_(nullptr), height_(0), parent_(nullptr) {};
+        Node(Key key, Info info) : key_(key), info_(info), balance_factor(0), parent_(nullptr), left_(nullptr), right_(nullptr), height_(0) {};
         Key getKey() { return key_; };
         Info getInfo() { return info_; };
+        int getHeight() { return height_; };
+        int getBalanceFactor() { return balance_factor; };
         void addInfo() { info_++; };
+        Node*& getLeft() { return left_; };
+        Node*& getRight() { return right_; };
+        Node*& getParent()  { return parent_; };
     private:
         Key key_;
         Info info_;
@@ -30,8 +38,6 @@ private:
         Node* parent_;
         void setLeft(Node* left) { left_ = left; };
         void setRight(Node* right) { right_ = right; };
-        Node*& getLeft() { return left_; };
-        Node*& getRight() { return right_; };
     };
     void rotateLeft(Node*& root);
     void rotateRight(Node*& root);
@@ -44,6 +50,7 @@ private:
     int diff(Node* temp);
     int height(Node* temp);
     void deleteNodeFromTree(Node*& root);
+
 public:
     Dictionary() : root_(nullptr) {};
     ~Dictionary();
@@ -53,6 +60,8 @@ public:
     void remove(const Key& key);
     int getHeight() { return height(root_); };
     int getDiff() { return diff(root_); };
+    Node* getRoot() { return root_; };
+
 protected:
     Node* root_;
 };
@@ -99,9 +108,19 @@ void Dictionary<Key, Info>::rotateLeft(Dictionary::Node *&root) {
         p->left_ = root;
         root = p;
         if (root->left_ != nullptr)
+        {
             root->left_->height_ = height(root->left_);
+            root->left_->parent_ = root;
+            if (root == root_)
+                root_->parent_ = nullptr;
+        }
         if (root->right_ != nullptr)
+        {
             root->right_->height_ = height(root->right_);
+            root->right_->parent_ = root;
+            if (root == root_)
+                root_->parent_ = nullptr;
+        }
     }
 }
 
@@ -123,12 +142,18 @@ void Dictionary<Key, Info>::rotateRight(Dictionary::Node *&root) {
         if (root->left_ != nullptr)
         {
             root->left_->height_ = height(root->left_);
+            root->left_->balance_factor = diff(root->left_);
             root->left_->parent_ = root;
+            if (root == root_)
+                root_->parent_ = nullptr;
         }
         if (root->right_ != nullptr)
         {
             root->right_->height_ = height(root->right_);
+            root->left_->balance_factor = diff(root->left_);
             root->right_->parent_ = root;
+            if (root == root_)
+                root_->parent_ = nullptr;
         }
     }
 }

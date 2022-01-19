@@ -21,6 +21,7 @@ void read_file(std::string file_name, Dictionary<std::string, int>& dict)
         if (dict.search(word))
         {
             dict.get(word)->addInfo();
+            continue;
         }
         dict.insert(word, 1);
     }
