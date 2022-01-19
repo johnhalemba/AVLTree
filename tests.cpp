@@ -90,6 +90,31 @@ namespace {
         EXPECT_EQ(d->getRoot()->getHeight(), 2);
     }
 
+    TEST_F(AVLTest, TestRemove) {
+        d->insert(5,1);
+        d->insert(4,1);
+        d->insert(9,1);
+        d->insert(3, 1);
+        d->insert(2, 3);
+        d->remove(10);
+        d->insert(7, 9);
 
+        EXPECT_EQ(d->getRoot()->getRight()->getRight(), nullptr);
+    }
+
+    TEST_F(AVLTest, RemoveNonExistingElement) {
+        d->insert(5, 4);
+        d->insert(4, 2);
+        d->insert(3, 1);
+        d->remove(8);
+        auto * root = d->getRoot();
+
+        EXPECT_EQ(root->getKey(), 4);
+        EXPECT_EQ(root->getParent(), nullptr);
+        EXPECT_EQ(root->getLeft()->getKey(), 3);
+        EXPECT_EQ(root->getLeft()->getParent(), root);
+        EXPECT_EQ(root->getRight()->getKey(), 5);
+        EXPECT_EQ(root->getRight()->getParent(), root);
+    }
 
 }

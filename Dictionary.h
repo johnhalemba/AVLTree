@@ -5,6 +5,7 @@
 #ifndef TREE_DICTIONARY_H
 #define TREE_DICTIONARY_H
 #include <iostream>
+#include <sstream>
 
 int max(int a, int b) {
     return (a > b) ? a : b;
@@ -48,8 +49,12 @@ private:
     void balance(Node*& root);
     void deleteNode(Node*& root, const Key& key);
     int diff(Node* temp);
+    std::string recursiveCallback(Node* node);
     int height(Node* temp);
     void deleteNodeFromTree(Node*& root);
+    int getDiff() { return diff(root_); };
+    int getHeight() { return height(root_); };
+    void printInOrder(Node* root);
 
 public:
     Dictionary() : root_(nullptr) {};
@@ -58,9 +63,9 @@ public:
     void insert(const Key& key, const Info& info);
     Node* get(const Key& key);
     void remove(const Key& key);
-    int getHeight() { return height(root_); };
-    int getDiff() { return diff(root_); };
     Node* getRoot() { return root_; };
+    void printAscending() { printInOrder(root_); };
+    void printPrittier() { std::cout << recursiveCallback(root_); };
 
 protected:
     Node* root_;
@@ -150,7 +155,7 @@ void Dictionary<Key, Info>::rotateRight(Dictionary::Node *&root) {
         if (root->right_ != nullptr)
         {
             root->right_->height_ = height(root->right_);
-            root->left_->balance_factor = diff(root->left_);
+            root->right_->balance_factor = diff(root->right_);
             root->right_->parent_ = root;
             if (root == root_)
                 root_->parent_ = nullptr;
@@ -222,48 +227,6 @@ typename Dictionary<Key, Info>::Node *Dictionary<Key, Info>::get(const Key &key)
         }
     }
     return current;
-}
-
-template<typename Key, typename Info>
-void Dictionary<Key, Info>::remove(const Key &key) {
-    Node* current;
-    Node* previous;
-    bool found = false;
-    if (root_ == nullptr)
-        std::cerr << "The tree is empty, cannot remove!" << std::endl;
-    else
-    {
-        current = root_;
-        previous = root_;
-
-        while (current != nullptr && !found)
-        {
-            if (current->key_ == key)
-                found = true;
-            else
-            {
-                previous = current;
-
-                if (current->key_ > key)
-                    current=current->left_;
-                else
-                    current = current->right_;
-            }
-        }
-
-        if (current == nullptr)
-            std::cerr << "Element not found!" << std::endl;
-        else
-        {
-            if (current == root_)
-                deleteNodeFromTree(root_);
-            else if (previous->key_ > key)
-                deleteNodeFromTree(previous->left_);
-            else
-                deleteNodeFromTree(previous->right_);
-        }
-        balance(previous);
-    }
 }
 
 template<typename Key, typename Info>
@@ -411,6 +374,75 @@ void Dictionary<Key, Info>::deleteNodeFromTree(Node*& root) {
             previousElement->right_ = currentElement->left_;
         delete currentElement;
     }
+}
+
+template<typename Key, typename Info>
+void Dictionary<Key, Info>::remove(const Key &key) {
+    Node* current;
+    Node* parentCurrent;
+    bool found = false;
+
+    if (root_ == nullptr)
+        std::cerr << "Empty tree!" << std::endl;
+    else
+    {
+        current = root_;
+        parentCurrent = root_;
+        while (current != nullptr && !found)
+        {
+            if (current->key_ == key)
+                found = true;
+            else
+            {
+                parentCurrent = current;
+
+                if (current->key_ > key)
+                    current = current->left_;
+                else
+                    current = current->right_;
+            }
+        }
+
+        if (current == nullptr)
+            std::cerr << "Element not found" << std::endl;
+        else
+        {
+            if (current == root_)
+            {
+                deleteNodeFromTree(root_);
+                balance(root_);
+            }
+            else if (parentCurrent->key_ > key)
+            {
+                deleteNodeFromTree(parentCurrent->left_);
+                balance(parentCurrent);
+            }
+            else
+            {
+                deleteNodeFromTree(parentCurrent->right_);
+                balance(parentCurrent);
+            }
+        }
+    }
+}
+
+template<typename Key, typename Info>
+void Dictionary<Key, Info>::printInOrder(Node *root) {
+    if (root == nullptr)
+        return;
+    printInOrder(root->left_);
+    std::cout << root->key_ << std::endl;
+    printInOrder(root->right_);
+}
+
+template<typename Key, typename Info>
+std::string Dictionary<Key, Info>::recursiveCallback(Node* node){
+    if(!node) return "";
+    std::stringstream str;
+    str << '[' << node -> key_ << " " << node -> info_ << ']';
+    if(node->left_) str << recursiveCallback(node->left_);
+    if(node->right_) str << recursiveCallback(node->right_);
+    return str.str();
 }
 
 #endif //TREE_DICTIONARY_H

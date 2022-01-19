@@ -18,12 +18,33 @@ void read_file(std::string file_name, Dictionary<std::string, int>& dict)
     std::string word;
     while (file >> word)
     {
-        if (dict.search(word))
+        std::string temp = "";
+        for (auto w : word)
         {
-            dict.get(word)->addInfo();
-            continue;
+            temp += w;
+            if ((int)w < 97 && int(w) > 122)
+            {
+                if (dict.search(word))
+                {
+                    dict.get(word)->addInfo();
+                    continue;
+                }
+                dict.insert(word, 1);
+                temp = "";
+            }
+            if (w == word[word.length()-1])
+            {
+                if (dict.search(word))
+                {
+                    dict.get(word)->addInfo();
+                    continue;
+                }
+                dict.insert(word, 1);
+                temp = "";
+            }
+
+
         }
-        dict.insert(word, 1);
     }
 }
 
